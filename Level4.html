@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World - Level 4</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family: Arial, sans-serif;
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at var(--mouse-x) var(--mouse-y),
+                    rgba(99, 102, 241, 0.35),
+                    transparent 25%
+                ),
+                linear-gradient(135deg, #020617, #111827, #1e1b4b);
+        }
+
+        .background-orb {
+            position: fixed;
+            width: 350px;
+            height: 350px;
+
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+
+            pointer-events: none;
+
+            animation: orbMove 10s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            background: #6366f1;
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            background: #ec4899;
+            bottom: -100px;
+            right: -100px;
+
+            animation-delay: -5s;
+        }
+
+        .card {
+            position: relative;
+
+            width: min(700px, 90vw);
+            padding: 70px 60px;
+
+            text-align: center;
+
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+
+            background: rgba(255, 255, 255, 0.08);
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.5),
+                inset 0 1px rgba(255, 255, 255, 0.2);
+
+            transform:
+                perspective(1000px)
+                rotateX(var(--rx, 0deg))
+                rotateY(var(--ry, 0deg));
+
+            transition: transform 0.15s ease;
+        }
+
+        .badge {
+            display: inline-block;
+
+            padding: 8px 18px;
+            margin-bottom: 25px;
+
+            border-radius: 999px;
+
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+
+            font-size: clamp(55px, 9vw, 110px);
+
+            background: linear-gradient(
+                90deg,
+                #38bdf8,
+                #818cf8,
+                #c084fc,
+                #f472b6,
+                #38bdf8
+            );
+
+            background-size: 400% auto;
+
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+
+            animation: gradient 5s linear infinite;
+        }
+
+        p {
+            margin: 25px 0 35px;
+
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 18px;
+        }
+
+        button {
+            position: relative;
+
+            padding: 14px 30px;
+
+            border: none;
+            border-radius: 999px;
+
+            color: white;
+            background: linear-gradient(
+                90deg,
+                #6366f1,
+                #a855f7
+            );
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 10px 30px rgba(99, 102, 241, 0.4);
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+
+            box-shadow:
+                0 15px 40px rgba(168, 85, 247, 0.55);
+        }
+
+        button::before {
+            content: "";
+
+            position: absolute;
+
+            width: 100px;
+            height: 100%;
+
+            top: 0;
+            left: -120px;
+
+            background: rgba(255, 255, 255, 0.35);
+
+            transform: skewX(-20deg);
+
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 130%;
+        }
+
+        #message {
+            margin-top: 20px;
+
+            opacity: 0;
+            transform: translateY(10px);
+
+            transition: 0.4s;
+        }
+
+        #message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes gradient {
+            to {
+                background-position: 400% center;
+            }
+        }
+
+        @keyframes orbMove {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(200px, 100px) scale(1.3);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-orb orb-1"></div>
+    <div class="background-orb orb-2"></div>
+
+    <main class="card">
+
+        <div class="badge">
+            Level 4
+        </div>
+
+        <h1>Hello World</h1>
+
+        <p>
+            Interactive glassmorphism experience.
+        </p>
+
+        <button id="button">
+            Click Me
+        </button>
+
+        <div id="message">
+            ✨ Hello! You interacted with the page.
+        </div>
+
+    </main>
+
+    <script>
+        const root = document.documentElement;
+        const card = document.querySelector(".card");
+        const button = document.querySelector("#button");
+        const message = document.querySelector("#message");
+
+        document.addEventListener("mousemove", (event) => {
+
+            const x = event.clientX;
+            const y = event.clientY;
+
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const rx = -(y - centerY) / 35;
+            const ry = (x - centerX) / 35;
+
+            root.style.setProperty("--mouse-x", `${x}px`);
+            root.style.setProperty("--mouse-y", `${y}px`);
+
+            card.style.setProperty("--rx", `${rx}deg`);
+            card.style.setProperty("--ry", `${ry}deg`);
+        });
+
+        button.addEventListener("click", () => {
+            message.classList.toggle("show");
+        });
+    </script>
+    <a href="./Level1.html">Level1</a>
+    <a href="./Level2.html">Level2</a>
+    <a href="./Level3.html">Level3</a>
+    <a href="./Level4.html">Level4</a>
+    <a href="./Level5.html">Level5</a>
+</body>
+</html>
