@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hello World — Level 10</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #fff;
+      }
+      #stage {
+        position: fixed;
+        inset: 0;
+        background: #020202;
+        overflow: hidden;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.35s;
+      }
+
+      /* camera / city */
+      .city {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 50% 35%,
+            rgba(75, 78, 73, 0.55),
+            transparent 34%
+          ),
+          linear-gradient(#151918 0 38%, #090b0b 70%, #030303);
+      }
+      .buildings {
+        position: absolute;
+        left: -5%;
+        right: -5%;
+        bottom: 17%;
+        height: 46%;
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+        filter: brightness(0.55);
+      }
+      .buildings i {
+        display: block;
+        background: #111;
+        border: 1px solid #292929;
+        position: relative;
+      }
+      .buildings i:after {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            transparent 0 9px,
+            #c2a957 10px 12px,
+            transparent 13px 22px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 13px,
+            #806f38 14px 16px,
+            transparent 17px 27px
+          );
+        opacity: 0.35;
+      }
+      .b1 {
+        width: 8%;
+        height: 48%;
+      }
+      .b2 {
+        width: 11%;
+        height: 73%;
+      }
+      .b3 {
+        width: 7%;
+        height: 58%;
+      }
+      .b4 {
+        width: 15%;
+        height: 88%;
+      }
+      .b5 {
+        width: 8%;
+        height: 62%;
+      }
+      .b6 {
+        width: 13%;
+        height: 78%;
+      }
+      .b7 {
+        width: 9%;
+        height: 52%;
+      }
+      .b8 {
+        width: 12%;
+        height: 70%;
+      }
+      .b9 {
+        width: 7%;
+        height: 47%;
+      }
+      .road {
+        position: absolute;
+        left: -15%;
+        right: -15%;
+        bottom: -35%;
+        height: 65%;
+        background: linear-gradient(166deg, #161616, #030303 55%);
+        transform: perspective(600px) rotateX(12deg);
+      }
+      .lane {
+        position: absolute;
+        left: 48%;
+        top: 10%;
+        width: 4px;
+        height: 100%;
+        background: repeating-linear-gradient(
+          #b9a85b 0 50px,
+          transparent 50px 105px
+        );
+        transform: skewX(-10deg);
+        opacity: 0.45;
+      }
+
+      /* car */
+      .car {
+        position: absolute;
+        width: min(430px, 52vw);
+        height: 150px;
+        left: 50%;
+        bottom: 18%;
+        transform: translateX(-50%) translateX(-80vw) rotate(-2deg);
+        filter: drop-shadow(0 20px 20px #000);
+        transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .car .body {
+        position: absolute;
+        left: 4%;
+        right: 4%;
+        bottom: 12px;
+        height: 65px;
+        background: linear-gradient(#343434, #111);
+        border-radius: 24px 32px 12px 12px;
+        border: 2px solid #444;
+      }
+      .car .roof {
+        position: absolute;
+        left: 22%;
+        top: 20px;
+        width: 54%;
+        height: 58px;
+        background: #181818;
+        clip-path: polygon(13% 100%, 27% 0, 73% 0, 88% 100%);
+        border: 2px solid #444;
+      }
+      .car .window {
+        position: absolute;
+        left: 29%;
+        top: 28px;
+        width: 42%;
+        height: 38px;
+        background: linear-gradient(135deg, #536268, #10191b);
+        clip-path: polygon(16% 100%, 28% 0, 72% 0, 84% 100%);
+      }
+      .wheel {
+        position: absolute;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        bottom: 0;
+        background: #080808;
+        border: 8px solid #252525;
+      }
+      .w1 {
+        left: 14%;
+      }
+      .w2 {
+        right: 14%;
+      }
+      .headlight {
+        position: absolute;
+        width: 20px;
+        height: 9px;
+        background: #fff7bf;
+        right: 4%;
+        bottom: 49px;
+        border-radius: 10px;
+        box-shadow: 0 0 35px 12px #fff7a0;
+      }
+      .taillight {
+        position: absolute;
+        width: 15px;
+        height: 8px;
+        background: #f22;
+        left: 5%;
+        bottom: 49px;
+        box-shadow: 0 0 20px 7px #f00;
+      }
+
+      /* glass */
+      .glass {
+        position: absolute;
+        left: 50%;
+        top: 42%;
+        width: 360px;
+        height: 220px;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+      }
+      .shard {
+        position: absolute;
+        width: 8px;
+        height: 42px;
+        background: linear-gradient(#dff, #789);
+        clip-path: polygon(50% 0, 100% 100%, 0 70%);
+        transform-origin: center;
+        opacity: 0.8;
+      }
+      @keyframes shards {
+        0% {
+          transform: translate(0, 0) rotate(0);
+          opacity: 0;
+        }
+        12% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--x), var(--y)) rotate(var(--r));
+          opacity: 0;
+        }
+      }
+
+      /* muzzle flash / shot */
+      .flash {
+        position: absolute;
+        left: 50%;
+        top: 43%;
+        width: 30px;
+        height: 30px;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        background: #fff7b0;
+        clip-path: polygon(
+          50% 0,
+          65% 35%,
+          100% 50%,
+          65% 64%,
+          50% 100%,
+          35% 64%,
+          0 50%,
+          35% 35%
+        );
+        box-shadow: 0 0 55px 25px #ffb000;
+      }
+      .flash.go {
+        animation: mflash 0.38s steps(2);
+      }
+      @keyframes mflash {
+        0% {
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        45% {
+          opacity: 0.15;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* police */
+      .police {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        mix-blend-mode: screen;
+      }
+      .police:before,
+      .police:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 58%;
+        filter: blur(25px);
+        opacity: 0.34;
+      }
+      .police:before {
+        left: -20%;
+        background: radial-gradient(ellipse, #315eff, transparent 62%);
+      }
+      .police:after {
+        right: -20%;
+        background: radial-gradient(ellipse, #ff1824, transparent 62%);
+      }
+      .police.on {
+        animation: police 0.55s steps(2) infinite;
+      }
+      @keyframes police {
+        50% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 0.35;
+        }
+      }
+      .siren {
+        position: absolute;
+        top: 37%;
+        left: 50%;
+        width: 180px;
+        height: 15px;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #064cff 0 45%, #ff1525 55%);
+        filter: blur(3px);
+        box-shadow:
+          0 0 35px #f22,
+          0 0 35px #24f;
+      }
+
+      /* wanted */
+      .wanted {
+        position: absolute;
+        right: 5%;
+        top: 6%;
+        font: bold 25px Arial;
+        letter-spacing: 2px;
+        opacity: 0;
+        text-shadow: 2px 2px #000;
+      }
+      .wanted span {
+        display: inline-block;
+        color: #eee;
+        margin-left: 3px;
+        transform: scale(0);
+        transition: 0.15s;
+      }
+      .wanted.show span {
+        transform: scale(1);
+      }
+
+      /* smoke / dust */
+      .smoke {
+        position: absolute;
+        left: 50%;
+        bottom: 24%;
+        width: 500px;
+        height: 260px;
+        transform: translateX(-50%);
+        background: radial-gradient(
+          ellipse,
+          rgba(180, 180, 180, 0.16),
+          transparent 65%
+        );
+        filter: blur(12px);
+        opacity: 0;
+      }
+      .smoke.on {
+        animation: smoke 3s ease-out forwards;
+      }
+      @keyframes smoke {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.5);
+        }
+        30% {
+          opacity: 0.55;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(-45%) translateY(-100px) scale(1.8);
+        }
+      }
+
+      /* Rockstar-like transition card, not copied logo artwork */
+      .brand {
+        position: absolute;
+        inset: 0;
+        background: #050505;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .brand-inner {
+        text-align: center;
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      .brand-mark {
+        font-size: clamp(50px, 10vw, 130px);
+        font-weight: 1000;
+        letter-spacing: -6px;
+      }
+      .brand-mark b {
+        color: #f5f5f5;
+      }
+      .brand-mark em {
+        color: #f5c400;
+        font-style: normal;
+      }
+      .brand-name {
+        font-size: clamp(12px, 2vw, 24px);
+        letter-spacing: 8px;
+        color: #aaa;
+        margin-top: 10px;
+      }
+      .brand.play {
+        animation: brandFade 3.2s ease forwards;
+      }
+      @keyframes brandFade {
+        0% {
+          opacity: 0;
+        }
+        15%,
+        78% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      .brand.play .brand-inner {
+        animation: brandIn 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      @keyframes brandIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.7);
+        }
+        35%,
+        75% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.04);
+        }
+      }
+
+      /* final */
+      .final {
+        position: absolute;
+        inset: 0;
+        background: #050505;
+        display: grid;
+        place-items: center;
+        opacity: 0;
+      }
+      .final.show {
+        animation: finalIn 1.3s forwards;
+      }
+      .final h1 {
+        font: 1000 clamp(42px, 8vw, 110px) Arial;
+        margin: 0;
+        letter-spacing: -4px;
+      }
+      .final h1 span {
+        color: #55bb6a;
+      }
+      .final p {
+        margin: 8px 0 0;
+        text-align: center;
+        color: #777;
+        letter-spacing: 7px;
+        font-size: 12px;
+      }
+      .final .loader {
+        width: 190px;
+        height: 3px;
+        background: #222;
+        margin: 30px auto 0;
+        overflow: hidden;
+      }
+      .final .loader i {
+        display: block;
+        width: 0;
+        height: 100%;
+        background: #fff;
+        animation: load 5s linear forwards;
+      }
+      @keyframes load {
+        to {
+          width: 100%;
+        }
+      }
+      @keyframes finalIn {
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <section class="scene" id="scene">
+        <div class="city"></div>
+        <div class="buildings">
+          <i class="b1"></i><i class="b2"></i><i class="b3"></i
+          ><i class="b4"></i><i class="b5"></i> <i class="b6"></i
+          ><i class="b7"></i><i class="b8"></i><i class="b9"></i>
+        </div>
+        <div class="road"><div class="lane"></div></div>
+
+        <div class="car" id="car">
+          <div class="roof"></div>
+          <div class="window"></div>
+          <div class="body"></div>
+          <div class="wheel w1"></div>
+          <div class="wheel w2"></div>
+          <div class="headlight"></div>
+          <div class="taillight"></div>
+        </div>
+
+        <div class="glass" id="glass">
+          <i
+            class="shard"
+            style="left: 20%; top: 25%; --x: -150px; --y: -130px; --r: -220deg"
+          ></i>
+          <i
+            class="shard"
+            style="left: 35%; top: 35%; --x: 170px; --y: -100px; --r: 180deg"
+          ></i>
+          <i
+            class="shard"
+            style="left: 50%; top: 20%; --x: -60px; --y: -170px; --r: 300deg"
+          ></i>
+          <i
+            class="shard"
+            style="left: 62%; top: 40%; --x: 190px; --y: 70px; --r: 250deg"
+          ></i>
+          <i
+            class="shard"
+            style="left: 42%; top: 55%; --x: -180px; --y: 100px; --r: -160deg"
+          ></i>
+          <i
+            class="shard"
+            style="left: 70%; top: 60%; --x: 100px; --y: 150px; --r: 120deg"
+          ></i>
+        </div>
+
+        <div class="flash" id="flash"></div>
+        <div class="police" id="police"><div class="siren"></div></div>
+        <div class="smoke" id="smoke"></div>
+
+        <div class="wanted" id="wanted">
+          WANTED
+          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        </div>
+      </section>
+
+      <section class="brand" id="brand">
+        <div class="brand-inner">
+          <div class="brand-mark"><b>ROCK</b><em>★</em></div>
+          <div class="brand-name">STAR GAMES</div>
+        </div>
+      </section>
+
+      <section class="final" id="final">
+        <div>
+          <h1>HELLO <span>WORLD</span></h1>
+          <p>LEVEL 10</p>
+          <div class="loader"><i></i></div>
+        </div>
+      </section>
+
+      <audio id="audio" preload="auto">
+        <source src="Assets/gta5-intro.mp3" type="audio/mpeg" />
+      </audio>
+    </div>
+
+    <script>
+      const scene = document.getElementById("scene");
+      const car = document.getElementById("car");
+      const glass = document.getElementById("glass");
+      const flash = document.getElementById("flash");
+      const police = document.getElementById("police");
+      const smoke = document.getElementById("smoke");
+      const wanted = document.getElementById("wanted");
+      const brand = document.getElementById("brand");
+      const finalScreen = document.getElementById("final");
+      const audio = document.getElementById("audio");
+
+      let started = false;
+
+      function start() {
+        if (started) return;
+        started = true;
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+        scene.style.opacity = "1";
+
+        // 0–3s: car enters the frame
+        setTimeout(
+          () =>
+            (car.style.transform =
+              "translateX(-50%) translateX(0) rotate(-2deg)"),
+          250,
+        );
+
+        // 2.3s: glass breaks
+        setTimeout(() => {
+          glass.style.opacity = "1";
+          glass.querySelectorAll(".shard").forEach((s, i) => {
+            s.style.animation = `shards ${1.0 + i * 0.07}s cubic-bezier(.2,.8,.2,1) forwards`;
+          });
+        }, 2300);
+
+        // 4.0s: gunshot / flash
+        setTimeout(() => {
+          flash.classList.remove("go");
+          void flash.offsetWidth;
+          flash.classList.add("go");
+          stageShake();
+        }, 4000);
+
+        // 5.0s: police lights
+        setTimeout(() => police.classList.add("on"), 5000);
+
+        // 6.5s: smoke / crash atmosphere
+        setTimeout(() => smoke.classList.add("on"), 6500);
+
+        // 8s: wanted stars
+        setTimeout(() => wanted.classList.add("show"), 8000);
+
+        // 10.5s: fade scene
+        setTimeout(() => {
+          scene.style.transition = "opacity 1.1s";
+          scene.style.opacity = "0";
+        }, 10500);
+
+        // 11s: brand card
+        setTimeout(() => brand.classList.add("play"), 11000);
+
+        // 14.5s: Hello World Level 10
+        setTimeout(() => {
+          finalScreen.classList.add("show");
+        }, 14500);
+
+        // 20s: index.html
+        setTimeout(() => (window.location.href = "./index.html"), 20500);
+      }
+
+      function stageShake() {
+        const stage = document.getElementById("stage");
+        stage.animate(
+          [
+            { transform: "translate(0,0)" },
+            { transform: "translate(-10px,5px)" },
+            { transform: "translate(8px,-6px)" },
+            { transform: "translate(-5px,3px)" },
+            { transform: "translate(0,0)" },
+          ],
+          { duration: 420, easing: "steps(4)" },
+        );
+      }
+
+      window.addEventListener("load", start);
+      document.addEventListener("click", () => {
+        if (!started) {
+          start();
+        } else if (audio.paused) audio.play().catch(() => {});
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !finalScreen.classList.contains("show")) {
+          finalScreen.classList.add("show");
+          setTimeout(() => (location.href = "./index.html"), 5000);
+        }
+      });
+    </script>
+  </body>
+</html>
