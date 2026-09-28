@@ -1,16 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Hello World - Level 1</title>
-</head>
-<body>
+    <style>
+      .level-nav {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        z-index: 20;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        width: max-content;
+        max-width: calc(100vw - 24px);
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transform: translateX(-50%);
+      }
 
+      .level-nav a {
+        padding: 8px 12px;
+        border-radius: 5px;
+        color: #f8fafc;
+        font:
+          600 14px/1 Arial,
+          sans-serif;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .level-nav a:hover,
+      .level-nav a:focus-visible {
+        background: #2563eb;
+        outline: none;
+      }
+
+      .level-nav a[aria-current="page"] {
+        background: #f8fafc;
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
     <h1>Hello World</h1>
-    <a href="./Level1.html">Level1</a>
-    <a href="./Level2.html">Level2</a>
-    <a href="./Level3.html">Level3</a>
-    <a href="./Level4.html">Level4</a>
-    <a href="./Level5.html">Level5</a>
-</body>
+    <nav class="level-nav" aria-label="Level navigation">
+      <a href="./Level1.html" aria-current="page">Level1</a>
+      <a href="./Level2.html">Level2</a>
+      <a href="./Level3.html">Level3</a>
+      <a href="./Level4.html">Level4</a>
+      <a href="./Level5.html">Level5</a>
+    </nav>
+  </body>
 </html>

@@ -1,901 +1,753 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Hello World - Level 5</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+      * {
+        box-sizing: border-box;
+      }
 
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-        }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-        body {
-            overflow: hidden;
+      body {
+        overflow: hidden;
 
-            font-family:
-                Inter,
-                Arial,
-                sans-serif;
+        font-family: Inter, Arial, sans-serif;
 
-            background: #020617;
-            color: white;
+        background: #020617;
+        color: white;
 
-            cursor: default;
-        }
+        cursor: default;
+      }
 
-        canvas {
-            position: fixed;
-            inset: 0;
+      canvas {
+        position: fixed;
+        inset: 0;
 
-            width: 100%;
-            height: 100%;
+        width: 100%;
+        height: 100%;
 
-            z-index: 0;
-        }
+        z-index: 0;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Mouse Light
         ------------------------- */
 
-        .mouse-light {
-            position: fixed;
+      .mouse-light {
+        position: fixed;
 
-            width: 500px;
-            height: 500px;
+        width: 500px;
+        height: 500px;
 
-            border-radius: 50%;
+        border-radius: 50%;
 
-            pointer-events: none;
+        pointer-events: none;
 
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(99, 102, 241, 0.18),
-                    transparent 65%
-                );
+        background: radial-gradient(
+          circle,
+          rgba(99, 102, 241, 0.18),
+          transparent 65%
+        );
 
-            transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
 
-            z-index: 1;
+        z-index: 1;
 
-            transition:
-                left 0.1s,
-                top 0.1s;
-        }
+        transition:
+          left 0.1s,
+          top 0.1s;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Main Card
         ------------------------- */
 
-        .scene {
-            position: relative;
+      .scene {
+        position: relative;
 
-            width: 100%;
-            height: 100%;
+        width: 100%;
+        height: 100%;
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-            perspective: 1500px;
+        perspective: 1500px;
 
-            z-index: 2;
-        }
+        z-index: 2;
+      }
 
-        .card {
-            position: relative;
+      .level-nav {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        z-index: 20;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        width: max-content;
+        max-width: calc(100vw - 24px);
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transform: translateX(-50%);
+      }
 
-            width: min(780px, 90vw);
-            min-height: 470px;
+      .level-nav a {
+        padding: 8px 12px;
+        border-radius: 5px;
+        color: #f8fafc;
+        font:
+          600 14px/1 Arial,
+          sans-serif;
+        text-decoration: none;
+        white-space: nowrap;
+      }
 
-            padding: 70px;
+      .level-nav a:hover,
+      .level-nav a:focus-visible {
+        background: #2563eb;
+        outline: none;
+      }
 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+      .level-nav a[aria-current="page"] {
+        background: #f8fafc;
+        color: #0f172a;
+      }
 
-            text-align: center;
+      .card {
+        position: relative;
 
-            border-radius: 40px;
+        width: min(780px, 90vw);
+        min-height: 470px;
 
-            border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 70px;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.12),
-                    rgba(255, 255, 255, 0.03)
-                );
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
 
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+        text-align: center;
 
-            box-shadow:
-                0 40px 100px rgba(0, 0, 0, 0.6),
-                inset 0 1px rgba(255, 255, 255, 0.25);
+        border-radius: 40px;
 
-            transform:
-                rotateX(var(--rx, 0deg))
-                rotateY(var(--ry, 0deg))
-                translateZ(0);
+        border: 1px solid rgba(255, 255, 255, 0.18);
 
-            transition:
-                transform 0.12s ease-out;
-        }
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.12),
+          rgba(255, 255, 255, 0.03)
+        );
 
-        /* Moving border */
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
 
-        .card::before {
-            content: "";
+        box-shadow:
+          0 40px 100px rgba(0, 0, 0, 0.6),
+          inset 0 1px rgba(255, 255, 255, 0.25);
 
-            position: absolute;
-            inset: -1px;
+        transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+          translateZ(0);
 
-            border-radius: inherit;
+        transition: transform 0.12s ease-out;
+      }
 
-            padding: 1px;
+      /* Moving border */
 
-            background:
-                linear-gradient(
-                    120deg,
-                    transparent,
-                    #38bdf8,
-                    #a855f7,
-                    #ec4899,
-                    transparent
-                );
+      .card::before {
+        content: "";
 
-            background-size: 300% 300%;
+        position: absolute;
+        inset: -1px;
 
-            animation: borderMove 5s linear infinite;
+        border-radius: inherit;
 
-            -webkit-mask:
-                linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
+        padding: 1px;
 
-            -webkit-mask-composite: xor;
+        background: linear-gradient(
+          120deg,
+          transparent,
+          #38bdf8,
+          #a855f7,
+          #ec4899,
+          transparent
+        );
 
-            mask-composite: exclude;
+        background-size: 300% 300%;
 
-            pointer-events: none;
-        }
+        animation: borderMove 5s linear infinite;
 
-        /* -------------------------
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+
+        -webkit-mask-composite: xor;
+
+        mask-composite: exclude;
+
+        pointer-events: none;
+      }
+
+      /* -------------------------
            Badge
         ------------------------- */
 
-        .badge {
-            position: relative;
+      .badge {
+        position: relative;
 
-            padding: 9px 18px;
+        padding: 9px 18px;
 
-            margin-bottom: 30px;
+        margin-bottom: 30px;
 
-            border-radius: 999px;
+        border-radius: 999px;
 
-            background: rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.07);
 
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.15);
 
-            font-size: 12px;
+        font-size: 12px;
 
-            letter-spacing: 4px;
+        letter-spacing: 4px;
 
-            text-transform: uppercase;
+        text-transform: uppercase;
 
-            color: #cbd5e1;
+        color: #cbd5e1;
 
-            animation: badgeFloat 3s ease-in-out infinite;
-        }
+        animation: badgeFloat 3s ease-in-out infinite;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Title
         ------------------------- */
 
-        h1 {
-            margin: 0;
+      h1 {
+        margin: 0;
 
-            font-size: clamp(55px, 10vw, 125px);
+        font-size: clamp(55px, 10vw, 125px);
 
-            line-height: 0.95;
+        line-height: 0.95;
 
-            font-weight: 900;
+        font-weight: 900;
 
-            letter-spacing: -5px;
+        letter-spacing: -5px;
 
-            background:
-                linear-gradient(
-                    90deg,
-                    #38bdf8,
-                    #818cf8,
-                    #c084fc,
-                    #f472b6,
-                    #fb7185,
-                    #38bdf8
-                );
+        background: linear-gradient(
+          90deg,
+          #38bdf8,
+          #818cf8,
+          #c084fc,
+          #f472b6,
+          #fb7185,
+          #38bdf8
+        );
 
-            background-size: 500% auto;
+        background-size: 500% auto;
 
-            color: transparent;
+        color: transparent;
 
-            background-clip: text;
-            -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-background-clip: text;
 
-            animation:
-                textGradient 7s linear infinite,
-                titleFloat 4s ease-in-out infinite;
+        animation:
+          textGradient 7s linear infinite,
+          titleFloat 4s ease-in-out infinite;
 
-            filter:
-                drop-shadow(0 0 15px rgba(129, 140, 248, 0.4))
-                drop-shadow(0 0 40px rgba(236, 72, 153, 0.2));
-        }
+        filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4))
+          drop-shadow(0 0 40px rgba(236, 72, 153, 0.2));
+      }
 
-        /* -------------------------
+      /* -------------------------
            Subtitle
         ------------------------- */
 
-        .subtitle {
-            margin-top: 30px;
+      .subtitle {
+        margin-top: 30px;
 
-            max-width: 500px;
+        max-width: 500px;
 
-            font-size: 17px;
-            line-height: 1.7;
+        font-size: 17px;
+        line-height: 1.7;
 
-            color: rgba(255, 255, 255, 0.6);
-        }
+        color: rgba(255, 255, 255, 0.6);
+      }
 
-        /* -------------------------
+      /* -------------------------
            Magnetic Button
         ------------------------- */
 
-        .button-wrapper {
-            margin-top: 35px;
+      .button-wrapper {
+        margin-top: 35px;
 
-            transform:
-                translate(
-                    var(--bx, 0px),
-                    var(--by, 0px)
-                );
+        transform: translate(var(--bx, 0px), var(--by, 0px));
 
-            transition: transform 0.15s ease;
-        }
+        transition: transform 0.15s ease;
+      }
 
-        button {
-            position: relative;
+      button {
+        position: relative;
 
-            padding: 16px 36px;
+        padding: 16px 36px;
 
-            border: 0;
-            border-radius: 999px;
+        border: 0;
+        border-radius: 999px;
 
-            color: white;
+        color: white;
 
-            font-size: 16px;
-            font-weight: 700;
+        font-size: 16px;
+        font-weight: 700;
 
-            background:
-                linear-gradient(
-                    90deg,
-                    #6366f1,
-                    #8b5cf6,
-                    #ec4899
-                );
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
 
-            background-size: 200% auto;
+        background-size: 200% auto;
 
-            cursor: pointer;
+        cursor: pointer;
 
-            overflow: hidden;
+        overflow: hidden;
 
-            box-shadow:
-                0 10px 30px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
 
-            animation: buttonGradient 4s linear infinite;
+        animation: buttonGradient 4s linear infinite;
 
-            transition:
-                transform 0.2s,
-                box-shadow 0.2s;
-        }
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
 
-        button:hover {
-            transform: scale(1.08);
+      button:hover {
+        transform: scale(1.08);
 
-            box-shadow:
-                0 15px 50px rgba(236, 72, 153, 0.5);
-        }
+        box-shadow: 0 15px 50px rgba(236, 72, 153, 0.5);
+      }
 
-        /* Shine */
+      /* Shine */
 
-        button::before {
-            content: "";
+      button::before {
+        content: "";
 
-            position: absolute;
+        position: absolute;
 
-            top: 0;
-            left: -100%;
+        top: 0;
+        left: -100%;
 
-            width: 70%;
-            height: 100%;
+        width: 70%;
+        height: 100%;
 
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.5),
-                    transparent
-                );
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.5),
+          transparent
+        );
 
-            transform: skewX(-20deg);
+        transform: skewX(-20deg);
 
-            transition: left 0.6s;
-        }
+        transition: left 0.6s;
+      }
 
-        button:hover::before {
-            left: 130%;
-        }
+      button:hover::before {
+        left: 130%;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Ripple
         ------------------------- */
 
-        .ripple {
-            position: absolute;
+      .ripple {
+        position: absolute;
 
-            border-radius: 50%;
+        border-radius: 50%;
 
-            background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.5);
 
-            transform: scale(0);
+        transform: scale(0);
 
-            animation: ripple 0.7s linear;
+        animation: ripple 0.7s linear;
 
-            pointer-events: none;
-        }
+        pointer-events: none;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Corner Decorations
         ------------------------- */
 
-        .corner {
-            position: absolute;
+      .corner {
+        position: absolute;
 
-            width: 40px;
-            height: 40px;
+        width: 40px;
+        height: 40px;
 
-            border-color: rgba(255, 255, 255, 0.3);
-            border-style: solid;
-        }
+        border-color: rgba(255, 255, 255, 0.3);
+        border-style: solid;
+      }
 
-        .corner.top-left {
-            top: 20px;
-            left: 20px;
+      .corner.top-left {
+        top: 20px;
+        left: 20px;
 
-            border-width: 2px 0 0 2px;
-        }
+        border-width: 2px 0 0 2px;
+      }
 
-        .corner.top-right {
-            top: 20px;
-            right: 20px;
+      .corner.top-right {
+        top: 20px;
+        right: 20px;
 
-            border-width: 2px 2px 0 0;
-        }
+        border-width: 2px 2px 0 0;
+      }
 
-        .corner.bottom-left {
-            bottom: 20px;
-            left: 20px;
+      .corner.bottom-left {
+        bottom: 20px;
+        left: 20px;
 
-            border-width: 0 0 2px 2px;
-        }
+        border-width: 0 0 2px 2px;
+      }
 
-        .corner.bottom-right {
-            bottom: 20px;
-            right: 20px;
+      .corner.bottom-right {
+        bottom: 20px;
+        right: 20px;
 
-            border-width: 0 2px 2px 0;
-        }
+        border-width: 0 2px 2px 0;
+      }
 
-        /* -------------------------
+      /* -------------------------
            Animations
         ------------------------- */
 
-        @keyframes textGradient {
-            to {
-                background-position: 500% center;
-            }
+      @keyframes textGradient {
+        to {
+          background-position: 500% center;
+        }
+      }
+
+      @keyframes titleFloat {
+        0%,
+        100% {
+          transform: translateY(0);
         }
 
-        @keyframes titleFloat {
-            0%, 100% {
-                transform: translateY(0);
-            }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
 
-            50% {
-                transform: translateY(-12px);
-            }
+      @keyframes badgeFloat {
+        0%,
+        100% {
+          transform: translateY(0);
         }
 
-        @keyframes badgeFloat {
-            0%, 100% {
-                transform: translateY(0);
-            }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
 
-            50% {
-                transform: translateY(-5px);
-            }
+      @keyframes borderMove {
+        0% {
+          background-position: 0% 50%;
         }
 
-        @keyframes borderMove {
-            0% {
-                background-position: 0% 50%;
-            }
+        100% {
+          background-position: 300% 50%;
+        }
+      }
 
-            100% {
-                background-position: 300% 50%;
-            }
+      @keyframes buttonGradient {
+        0% {
+          background-position: 0% center;
         }
 
-        @keyframes buttonGradient {
-            0% {
-                background-position: 0% center;
-            }
-
-            100% {
-                background-position: 200% center;
-            }
+        100% {
+          background-position: 200% center;
         }
+      }
 
-        @keyframes ripple {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
         }
+      }
 
-        /* -------------------------
+      /* -------------------------
            Mobile
         ------------------------- */
 
-        @media (max-width: 600px) {
-
-            .card {
-                min-height: 400px;
-                padding: 40px 25px;
-            }
-
-            h1 {
-                letter-spacing: -3px;
-            }
-
-            .subtitle {
-                font-size: 15px;
-            }
+      @media (max-width: 600px) {
+        .card {
+          min-height: 400px;
+          padding: 40px 25px;
         }
+
+        h1 {
+          letter-spacing: -3px;
+        }
+
+        .subtitle {
+          font-size: 15px;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <canvas id="particles"></canvas>
 
     <div class="mouse-light"></div>
 
     <div class="scene">
+      <main class="card">
+        <span class="corner top-left"></span>
+        <span class="corner top-right"></span>
+        <span class="corner bottom-left"></span>
+        <span class="corner bottom-right"></span>
 
-        <main class="card">
+        <div class="badge">Level 5</div>
 
-            <span class="corner top-left"></span>
-            <span class="corner top-right"></span>
-            <span class="corner bottom-left"></span>
-            <span class="corner bottom-right"></span>
+        <h1>Hello World</h1>
 
-            <div class="badge">
-                Level 5
-            </div>
+        <div class="subtitle">
+          A fully interactive HTML experience powered by CSS animations,
+          JavaScript particles and mouse interaction.
+        </div>
 
-            <h1>
-                Hello World
-            </h1>
-
-            <div class="subtitle">
-                A fully interactive HTML experience
-                powered by CSS animations,
-                JavaScript particles and mouse interaction.
-            </div>
-
-            <div class="button-wrapper">
-                <button id="magicButton">
-                    Explore
-                </button>
-            </div>
-
-        </main>
-
+        <div class="button-wrapper">
+          <button id="magicButton">Explore</button>
+        </div>
+      </main>
     </div>
 
     <script>
-
-        /* =================================
+      /* =================================
            Mouse Light
         ================================= */
 
-        const light = document.querySelector(".mouse-light");
+      const light = document.querySelector(".mouse-light");
 
-        document.addEventListener("mousemove", (event) => {
+      document.addEventListener("mousemove", (event) => {
+        light.style.left = event.clientX + "px";
+        light.style.top = event.clientY + "px";
+      });
 
-            light.style.left = event.clientX + "px";
-            light.style.top = event.clientY + "px";
-
-        });
-
-
-        /* =================================
+      /* =================================
            3D Card
         ================================= */
 
-        const card = document.querySelector(".card");
+      const card = document.querySelector(".card");
 
-        document.addEventListener("mousemove", (event) => {
+      document.addEventListener("mousemove", (event) => {
+        const x = event.clientX / window.innerWidth - 0.5;
 
-            const x =
-                event.clientX / window.innerWidth - 0.5;
+        const y = event.clientY / window.innerHeight - 0.5;
 
-            const y =
-                event.clientY / window.innerHeight - 0.5;
+        const rotateY = x * 18;
+        const rotateX = y * -18;
 
-            const rotateY = x * 18;
-            const rotateX = y * -18;
+        card.style.setProperty("--rx", rotateX + "deg");
 
-            card.style.setProperty(
-                "--rx",
-                rotateX + "deg"
-            );
+        card.style.setProperty("--ry", rotateY + "deg");
+      });
 
-            card.style.setProperty(
-                "--ry",
-                rotateY + "deg"
-            );
-
-        });
-
-
-        /* =================================
+      /* =================================
            Magnetic Button
         ================================= */
 
-        const wrapper =
-            document.querySelector(".button-wrapper");
+      const wrapper = document.querySelector(".button-wrapper");
 
-        const button =
-            document.querySelector("#magicButton");
+      const button = document.querySelector("#magicButton");
 
-        button.addEventListener("mousemove", (event) => {
+      button.addEventListener("mousemove", (event) => {
+        const rect = button.getBoundingClientRect();
 
-            const rect =
-                button.getBoundingClientRect();
+        const x = event.clientX - rect.left - rect.width / 2;
 
-            const x =
-                event.clientX - rect.left - rect.width / 2;
+        const y = event.clientY - rect.top - rect.height / 2;
 
-            const y =
-                event.clientY - rect.top - rect.height / 2;
+        wrapper.style.setProperty("--bx", `${x * 0.25}px`);
 
-            wrapper.style.setProperty(
-                "--bx",
-                `${x * 0.25}px`
-            );
+        wrapper.style.setProperty("--by", `${y * 0.25}px`);
+      });
 
-            wrapper.style.setProperty(
-                "--by",
-                `${y * 0.25}px`
-            );
+      button.addEventListener("mouseleave", () => {
+        wrapper.style.setProperty("--bx", "0px");
 
-        });
+        wrapper.style.setProperty("--by", "0px");
+      });
 
-        button.addEventListener("mouseleave", () => {
-
-            wrapper.style.setProperty(
-                "--bx",
-                "0px"
-            );
-
-            wrapper.style.setProperty(
-                "--by",
-                "0px"
-            );
-
-        });
-
-
-        /* =================================
+      /* =================================
            Ripple Effect
         ================================= */
 
-        button.addEventListener("click", (event) => {
+      button.addEventListener("click", (event) => {
+        const ripple = document.createElement("span");
 
-            const ripple =
-                document.createElement("span");
+        ripple.classList.add("ripple");
 
-            ripple.classList.add("ripple");
+        const rect = button.getBoundingClientRect();
 
-            const rect =
-                button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
 
-            const size =
-                Math.max(
-                    rect.width,
-                    rect.height
-                );
+        ripple.style.width = size + "px";
+        ripple.style.height = size + "px";
 
-            ripple.style.width = size + "px";
-            ripple.style.height = size + "px";
+        ripple.style.left = event.clientX - rect.left - size / 2 + "px";
 
-            ripple.style.left =
-                event.clientX -
-                rect.left -
-                size / 2 +
-                "px";
+        ripple.style.top = event.clientY - rect.top - size / 2 + "px";
 
-            ripple.style.top =
-                event.clientY -
-                rect.top -
-                size / 2 +
-                "px";
+        button.appendChild(ripple);
 
-            button.appendChild(ripple);
+        setTimeout(() => {
+          ripple.remove();
+        }, 700);
+      });
 
-            setTimeout(() => {
-                ripple.remove();
-            }, 700);
-
-        });
-
-
-        /* =================================
+      /* =================================
            Particle System
         ================================= */
 
-        const canvas =
-            document.querySelector("#particles");
+      const canvas = document.querySelector("#particles");
 
-        const ctx =
-            canvas.getContext("2d");
+      const ctx = canvas.getContext("2d");
 
-        let particles = [];
+      let particles = [];
 
-        function resizeCanvas() {
+      function resizeCanvas() {
+        canvas.width = window.innerWidth * window.devicePixelRatio;
 
-            canvas.width =
-                window.innerWidth *
-                window.devicePixelRatio;
+        canvas.height = window.innerHeight * window.devicePixelRatio;
 
-            canvas.height =
-                window.innerHeight *
-                window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
 
-            ctx.scale(
-                window.devicePixelRatio,
-                window.devicePixelRatio
-            );
+      resizeCanvas();
 
+      window.addEventListener("resize", resizeCanvas);
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * window.innerWidth;
+
+          this.y = Math.random() * window.innerHeight;
+
+          this.size = Math.random() * 2 + 0.5;
+
+          this.speedX = (Math.random() - 0.5) * 0.4;
+
+          this.speedY = (Math.random() - 0.5) * 0.4;
+
+          this.opacity = Math.random() * 0.6 + 0.1;
         }
 
-        resizeCanvas();
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
 
-        window.addEventListener(
-            "resize",
-            resizeCanvas
-        );
+          if (this.x < 0 || this.x > window.innerWidth) {
+            this.speedX *= -1;
+          }
 
-
-        class Particle {
-
-            constructor() {
-
-                this.x =
-                    Math.random() *
-                    window.innerWidth;
-
-                this.y =
-                    Math.random() *
-                    window.innerHeight;
-
-                this.size =
-                    Math.random() * 2 + 0.5;
-
-                this.speedX =
-                    (Math.random() - 0.5) * 0.4;
-
-                this.speedY =
-                    (Math.random() - 0.5) * 0.4;
-
-                this.opacity =
-                    Math.random() * 0.6 + 0.1;
-            }
-
-            update() {
-
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (
-                    this.x < 0 ||
-                    this.x > window.innerWidth
-                ) {
-                    this.speedX *= -1;
-                }
-
-                if (
-                    this.y < 0 ||
-                    this.y > window.innerHeight
-                ) {
-                    this.speedY *= -1;
-                }
-            }
-
-            draw() {
-
-                ctx.beginPath();
-
-                ctx.arc(
-                    this.x,
-                    this.y,
-                    this.size,
-                    0,
-                    Math.PI * 2
-                );
-
-                ctx.fillStyle =
-                    `rgba(148,163,184,${this.opacity})`;
-
-                ctx.fill();
-            }
+          if (this.y < 0 || this.y > window.innerHeight) {
+            this.speedY *= -1;
+          }
         }
 
+        draw() {
+          ctx.beginPath();
 
-        function createParticles() {
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
 
-            particles = [];
+          ctx.fillStyle = `rgba(148,163,184,${this.opacity})`;
 
-            const count =
-                Math.min(
-                    120,
-                    Math.floor(
-                        window.innerWidth / 10
-                    )
-                );
-
-            for (
-                let i = 0;
-                i < count;
-                i++
-            ) {
-                particles.push(
-                    new Particle()
-                );
-            }
-
+          ctx.fill();
         }
+      }
 
-        createParticles();
+      function createParticles() {
+        particles = [];
 
-        window.addEventListener(
-            "resize",
-            createParticles
-        );
+        const count = Math.min(120, Math.floor(window.innerWidth / 10));
 
+        for (let i = 0; i < count; i++) {
+          particles.push(new Particle());
+        }
+      }
 
-        /* =================================
+      createParticles();
+
+      window.addEventListener("resize", createParticles);
+
+      /* =================================
            Particle Connections
         ================================= */
 
-        function connectParticles() {
+      function connectParticles() {
+        for (let a = 0; a < particles.length; a++) {
+          for (let b = a + 1; b < particles.length; b++) {
+            const dx = particles[a].x - particles[b].x;
 
-            for (
-                let a = 0;
-                a < particles.length;
-                a++
-            ) {
+            const dy = particles[a].y - particles[b].y;
 
-                for (
-                    let b = a + 1;
-                    b < particles.length;
-                    b++
-                ) {
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    const dx =
-                        particles[a].x -
-                        particles[b].x;
+            if (distance < 120) {
+              const opacity = 1 - distance / 120;
 
-                    const dy =
-                        particles[a].y -
-                        particles[b].y;
+              ctx.beginPath();
 
-                    const distance =
-                        Math.sqrt(
-                            dx * dx +
-                            dy * dy
-                        );
+              ctx.moveTo(particles[a].x, particles[a].y);
 
-                    if (distance < 120) {
+              ctx.lineTo(particles[b].x, particles[b].y);
 
-                        const opacity =
-                            1 -
-                            distance / 120;
-
-                        ctx.beginPath();
-
-                        ctx.moveTo(
-                            particles[a].x,
-                            particles[a].y
-                        );
-
-                        ctx.lineTo(
-                            particles[b].x,
-                            particles[b].y
-                        );
-
-                        ctx.strokeStyle =
-                            `rgba(
+              ctx.strokeStyle = `rgba(
                                 129,
                                 140,
                                 248,
                                 ${opacity * 0.15}
                             )`;
 
-                        ctx.stroke();
-                    }
-                }
+              ctx.stroke();
             }
+          }
         }
+      }
 
-
-        /* =================================
+      /* =================================
            Animation Loop
         ================================= */
 
-        function animate() {
+      function animate() {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-            ctx.clearRect(
-                0,
-                0,
-                window.innerWidth,
-                window.innerHeight
-            );
+        particles.forEach((particle) => {
+          particle.update();
+          particle.draw();
+        });
 
-            particles.forEach(
-                particle => {
+        connectParticles();
 
-                    particle.update();
-                    particle.draw();
+        requestAnimationFrame(animate);
+      }
 
-                }
-            );
-
-            connectParticles();
-
-            requestAnimationFrame(
-                animate
-            );
-        }
-
-        animate();
-
+      animate();
     </script>
-    <a href="./Level1.html">Level1</a>
-    <a href="./Level2.html">Level2</a>
-    <a href="./Level3.html">Level3</a>
-    <a href="./Level4.html">Level4</a>
-    <a href="./Level5.html">Level5</a>
-</body>
+    <nav class="level-nav" aria-label="Level navigation">
+      <a href="./Level1.html">Level1</a>
+      <a href="./Level2.html">Level2</a>
+      <a href="./Level3.html">Level3</a>
+      <a href="./Level4.html">Level4</a>
+      <a href="./Level5.html" aria-current="page">Level5</a>
+    </nav>
+  </body>
 </html>
